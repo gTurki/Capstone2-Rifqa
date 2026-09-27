@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.example</groupId>
-    <artifactId>Castone2Rifqa</artifactId>
+    <artifactId>Capstone2Rifqa</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Castone2Rifqa</name>
-    <description>Castone2Rifqa</description>
+    <name>Capstone2Rifqa</name>
+    <description>Capstone2Rifqa</description>
     <url/>
     <licenses>
         <license/>
