@@ -32,7 +32,7 @@ public class UserController {
     }
 
     @GetMapping("/get-by-status/{status}")
-    public ResponseEntity<?> getUsersByStatus(@PathVariable UserStatus status) {
+    public ResponseEntity<?> getUsersByStatus(@PathVariable String status) {
         return ResponseEntity.status(200).body(userService.getUsersByStatus(status));
     }
 

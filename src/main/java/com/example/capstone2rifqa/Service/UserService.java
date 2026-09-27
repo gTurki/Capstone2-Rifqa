@@ -7,6 +7,7 @@ import com.example.capstone2rifqa.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -35,10 +36,18 @@ public class UserService {
         return users;
     }
 
-    public List<User> getUsersByStatus(UserStatus status) {
-        List<User> users = userRepository.findUsersByStatus(status);
+    public List<User> getUsersByStatus(String status) {
+        UserStatus userStatus;
+
+        try {
+            userStatus = UserStatus.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new ApiException("Invalid status: " + status + ". Allowed values: " + Arrays.toString(UserStatus.values()));
+        }
+
+        List<User> users = userRepository.findUsersByStatus(userStatus);
         if (users.isEmpty()) {
-            throw new ApiException("No users found with status: " + status);
+            throw new ApiException("No users found with status: " + userStatus);
         }
         return users;
     }

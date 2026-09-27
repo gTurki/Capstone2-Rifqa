@@ -9,6 +9,7 @@ import com.example.capstone2rifqa.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -30,10 +31,17 @@ public class ReportService {
         return report;
     }
 
-    public List<Report> getReportsByStatus(ReportStatus status) {
-        List<Report> reports = reportRepository.findReportsByStatus(status);
+    public List<Report> getReportsByStatus(String status) {
+        ReportStatus reportStatus;
+        try {
+            reportStatus = ReportStatus.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new ApiException("Invalid status: " + status + ". Allowed values: " + Arrays.toString(ReportStatus.values()));
+        }
+
+        List<Report> reports = reportRepository.findReportsByStatus(reportStatus);
         if (reports.isEmpty()) {
-            throw new ApiException("No reports found with status: " + status);
+            throw new ApiException("No reports found with status: " + reportStatus);
         }
         return reports;
     }
