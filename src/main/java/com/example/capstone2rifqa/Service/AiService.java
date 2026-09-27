@@ -85,6 +85,7 @@ public class AiService {
             JsonNode root = objectMapper.readTree(response);
             return root.path("choices").path(0).path("message").path("content").asText();
         } catch (Exception e) {
+            System.out.println("AI error: " + e.getMessage());
             throw new ApiException("AI matching service is currently unavailable");
         }
     }

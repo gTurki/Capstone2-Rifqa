@@ -13,6 +13,7 @@ import com.example.capstone2rifqa.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -77,21 +78,28 @@ public class AdminService {
         return true;
     }
 
-    public Boolean updateReportStatus(Integer adminId, Integer reportId, ReportStatus status) {
+    public Boolean updateReportStatus(Integer adminId, Integer reportId, String status) {
         checkAdminExists(adminId);
+
+        ReportStatus reportStatus;
+        try {
+            reportStatus = ReportStatus.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new ApiException("Invalid status: " + status + ". Allowed values: " + Arrays.toString(ReportStatus.values()));
+        }
 
         Report report = reportRepository.findReportById(reportId);
         if (report == null) {
             throw new ApiException("Report not found with ID: " + reportId);
         }
-        if (status == ReportStatus.PENDING) {
+        if (reportStatus == ReportStatus.PENDING) {
             throw new ApiException("A report can only be marked as REVIEWED or DISMISSED");
         }
         if (report.getStatus() != ReportStatus.PENDING) {
             throw new ApiException("This report has already been " + report.getStatus());
         }
 
-        report.setStatus(status);
+        report.setStatus(reportStatus);
         reportRepository.save(report);
         return true;
     }
