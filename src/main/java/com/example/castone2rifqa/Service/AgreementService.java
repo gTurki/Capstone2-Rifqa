@@ -36,6 +36,10 @@ public class AgreementService {
     }
 
     public List<Agreement> getAgreementsByUserId(Integer userId) {
+        User user = userRepository.findUserById(userId);
+        if (user == null) {
+            throw new ApiException("User not found with ID: " + userId);
+        }
         List<Agreement> agreements = agreementRepository.findAgreementsByUserOneIdOrUserTwoId(userId, userId);
         if (agreements.isEmpty()) {
             throw new ApiException("This user has no agreements");
@@ -44,6 +48,10 @@ public class AgreementService {
     }
 
     public List<Agreement> getAgreementsByListingId(Integer listingId) {
+        RoomListing listing = roomListingRepository.findRoomListingById(listingId);
+        if (listing == null) {
+            throw new ApiException("Room listing not found with ID: " + listingId);
+        }
         List<Agreement> agreements = agreementRepository.findAgreementsByListingId(listingId);
         if (agreements.isEmpty()) {
             throw new ApiException("No agreements found for this listing");

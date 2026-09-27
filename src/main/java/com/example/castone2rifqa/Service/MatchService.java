@@ -38,6 +38,10 @@ public class MatchService {
     }
 
     public List<Match> getMatchesByUserId(Integer userId) {
+        User user = userRepository.findUserById(userId);
+        if (user == null) {
+            throw new ApiException("User not found with ID: " + userId);
+        }
         List<Match> matches = matchRepository.findMatchesByUserOneIdOrUserTwoId(userId, userId);
         if (matches.isEmpty()) {
             throw new ApiException("This user has no matches yet");

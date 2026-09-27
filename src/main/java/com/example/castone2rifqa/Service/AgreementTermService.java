@@ -31,6 +31,10 @@ public class AgreementTermService {
     }
 
     public List<AgreementTerm> getTermsByAgreementId(Integer agreementId) {
+        Agreement agreement = agreementRepository.findAgreementById(agreementId);
+        if (agreement == null) {
+            throw new ApiException("Agreement not found with ID: " + agreementId);
+        }
         List<AgreementTerm> terms = agreementTermRepository.findAgreementTermsByAgreementId(agreementId);
         if (terms.isEmpty()) {
             throw new ApiException("This agreement has no terms yet");

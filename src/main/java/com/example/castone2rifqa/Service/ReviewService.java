@@ -34,6 +34,7 @@ public class ReviewService {
     }
 
     public List<Review> getReviewsForUser(Integer userId) {
+        checkUserExists(userId);
         List<Review> reviews = reviewRepository.findReviewsByReviewedUserId(userId);
         if (reviews.isEmpty()) {
             throw new ApiException("This user has no reviews yet");
@@ -42,6 +43,10 @@ public class ReviewService {
     }
 
     public List<Review> getReviewsByAgreementId(Integer agreementId) {
+        Agreement agreement = agreementRepository.findAgreementById(agreementId);
+        if (agreement == null) {
+            throw new ApiException("Agreement not found with ID: " + agreementId);
+        }
         List<Review> reviews = reviewRepository.findReviewsByAgreementId(agreementId);
         if (reviews.isEmpty()) {
             throw new ApiException("No reviews found for this agreement");
