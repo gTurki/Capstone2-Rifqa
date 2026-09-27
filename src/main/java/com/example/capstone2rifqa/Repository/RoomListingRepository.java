@@ -2,6 +2,7 @@ package com.example.capstone2rifqa.Repository;
 
 import com.example.capstone2rifqa.Entity.RoomListing;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,5 +16,7 @@ public interface RoomListingRepository extends JpaRepository<RoomListing, Intege
 
     List<RoomListing> findRoomListingsByCityAndAvailable(String city, Boolean available);
 
-    List<RoomListing> findRoomListingsByRentAmountLessThanEqualAndAvailable(Double maxRent, Boolean available);
+    // Cheapest listings first
+    @Query("select r from RoomListing r where r.rentAmount <= ?1 and r.available = true order by r.rentAmount asc")
+    List<RoomListing> findAvailableListingsByMaxRent(Double maxRent);
 }

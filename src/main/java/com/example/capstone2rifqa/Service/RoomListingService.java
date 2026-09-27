@@ -50,7 +50,7 @@ public class RoomListingService {
     }
 
     public List<RoomListing> getAvailableListingsByMaxRent(Double maxRent) {
-        List<RoomListing> listings = roomListingRepository.findRoomListingsByRentAmountLessThanEqualAndAvailable(maxRent, true);
+        List<RoomListing> listings = roomListingRepository.findAvailableListingsByMaxRent(maxRent);
         if (listings.isEmpty()) {
             throw new ApiException("No available listings found with rent up to " + maxRent);
         }

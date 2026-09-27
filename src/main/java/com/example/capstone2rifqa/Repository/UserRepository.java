@@ -3,6 +3,7 @@ package com.example.capstone2rifqa.Repository;
 import com.example.capstone2rifqa.Entity.User;
 import com.example.capstone2rifqa.Entity.UserStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,5 +19,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     List<User> findUsersByCity(String city);
 
-    List<User> findUsersByCityAndStatus(String city, UserStatus status);
+    // Match candidates: same city, same gender (case-insensitive), given status, excluding the user
+    @Query("select u from User u where u.city = ?1 and lower(u.gender) = lower(?2) and u.status = ?3 and u.id <> ?4")
+    List<User> findMatchCandidates(String city, String gender, UserStatus status, Integer excludedUserId);
 }

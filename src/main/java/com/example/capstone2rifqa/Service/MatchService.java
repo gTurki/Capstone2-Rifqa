@@ -10,7 +10,6 @@ import com.example.capstone2rifqa.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -42,7 +41,7 @@ public class MatchService {
         if (user == null) {
             throw new ApiException("User not found with ID: " + userId);
         }
-        List<Match> matches = matchRepository.findMatchesByUserOneIdOrUserTwoId(userId, userId);
+        List<Match> matches = matchRepository.findMatchesByUserId(userId);
         if (matches.isEmpty()) {
             throw new ApiException("This user has no matches yet");
         }
@@ -59,18 +58,9 @@ public class MatchService {
             throw new ApiException("User must have status LOOKING to receive match suggestions");
         }
 
-        List<User> candidates = new ArrayList<>();
-        for (User candidate : userRepository.findUsersByCityAndStatus(user.getCity(), UserStatus.LOOKING)) {
-            if (candidate.getId().equals(userId)) {
-                continue;
-            }
-            if (!candidate.getGender().equalsIgnoreCase(user.getGender())) {
-                continue;
-            }
-            candidates.add(candidate);
-            if (candidates.size() >= MAX_CANDIDATES) {
-                break;
-            }
+        List<User> candidates = userRepository.findMatchCandidates(user.getCity(), user.getGender(), UserStatus.LOOKING, userId);
+        if (candidates.size() > MAX_CANDIDATES) {
+            candidates = candidates.subList(0, MAX_CANDIDATES);
         }
 
         if (candidates.isEmpty()) {
@@ -115,10 +105,7 @@ public class MatchService {
             throw new ApiException("Both users must have status LOOKING to be matched");
         }
 
-        Match existing = matchRepository.findMatchByUserOneIdAndUserTwoId(match.getUserOneId(), match.getUserTwoId());
-        if (existing == null) {
-            existing = matchRepository.findMatchByUserOneIdAndUserTwoId(match.getUserTwoId(), match.getUserOneId());
-        }
+        Match existing = matchRepository.findMatchBetweenUsers(match.getUserOneId(), match.getUserTwoId());
         if (existing != null) {
             throw new ApiException("These users are already matched");
         }

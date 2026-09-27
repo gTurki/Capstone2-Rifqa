@@ -57,16 +57,11 @@ public class ReviewService {
     public Double getAverageRating(Integer userId) {
         checkUserExists(userId);
 
-        List<Review> reviews = reviewRepository.findReviewsByReviewedUserId(userId);
-        if (reviews.isEmpty()) {
+        Double average = reviewRepository.findAverageRatingByUserId(userId);
+        if (average == null) {
             return 0.0;
         }
-
-        double total = 0;
-        for (Review review : reviews) {
-            total += review.getRating();
-        }
-        return total / reviews.size();
+        return average;
     }
 
     public Boolean addReview(Review review) {

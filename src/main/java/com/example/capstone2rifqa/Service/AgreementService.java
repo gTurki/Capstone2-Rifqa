@@ -40,7 +40,7 @@ public class AgreementService {
         if (user == null) {
             throw new ApiException("User not found with ID: " + userId);
         }
-        List<Agreement> agreements = agreementRepository.findAgreementsByUserOneIdOrUserTwoId(userId, userId);
+        List<Agreement> agreements = agreementRepository.findAgreementsByUserId(userId);
         if (agreements.isEmpty()) {
             throw new ApiException("This user has no agreements");
         }
