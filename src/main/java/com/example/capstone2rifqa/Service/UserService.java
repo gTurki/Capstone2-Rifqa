@@ -90,8 +90,9 @@ public class UserService {
         user.setAllowsVisitors(updatedUser.getAllowsVisitors());
         user.setCleanlinessLevel(updatedUser.getCleanlinessLevel());
         user.setSleepSchedule(updatedUser.getSleepSchedule());
-        user.setStatus(updatedUser.getStatus());
-
+        if (updatedUser.getStatus() != null) {
+            user.setStatus(updatedUser.getStatus());
+        }
         userRepository.save(user);
         return true;
     }

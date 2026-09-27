@@ -85,7 +85,9 @@ public class RoomListingService {
         listing.setDistrict(updatedListing.getDistrict());
         listing.setRentAmount(updatedListing.getRentAmount());
         listing.setDescription(updatedListing.getDescription());
-        listing.setAvailable(updatedListing.getAvailable());
+        if (updatedListing.getAvailable() != null) {
+            listing.setAvailable(updatedListing.getAvailable());
+        }
 
         roomListingRepository.save(listing);
         return true;
@@ -99,7 +101,7 @@ public class RoomListingService {
 
         listing.setAvailable(!listing.getAvailable());
         roomListingRepository.save(listing);
-        return true;
+        return listing.getAvailable();
     }
 
     public Boolean deleteRoomListing(Integer id) {

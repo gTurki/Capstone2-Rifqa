@@ -2,7 +2,6 @@ package com.example.capstone2rifqa.Controller;
 
 import com.example.capstone2rifqa.Api.ApiResponse;
 import com.example.capstone2rifqa.Entity.User;
-import com.example.capstone2rifqa.Entity.UserStatus;
 import com.example.capstone2rifqa.Service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
