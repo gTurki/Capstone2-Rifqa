@@ -1,7 +1,7 @@
 package com.example.capstone2rifqa.Controller;
 
 import com.example.capstone2rifqa.Api.ApiResponse;
-import com.example.capstone2rifqa.Entity.RoomListing;
+import com.example.capstone2rifqa.DTO.RoomListingDTO;
 import com.example.capstone2rifqa.Service.RoomListingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -40,28 +40,28 @@ public class RoomListingController {
         return ResponseEntity.status(200).body(roomListingService.getAvailableListingsByMaxRent(maxRent));
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<?> addRoomListing(@RequestBody @Valid RoomListing roomListing) {
-        roomListingService.addRoomListing(roomListing);
+    @PostMapping("/add/renterid/{renterId}")
+    public ResponseEntity<?> addRoomListing(@PathVariable Integer renterId, @RequestBody @Valid RoomListingDTO roomListingDTO) {
+        roomListingService.addRoomListing(renterId, roomListingDTO);
         return ResponseEntity.status(200).body(new ApiResponse("Room listing added successfully"));
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateRoomListing(@PathVariable Integer id, @RequestBody @Valid RoomListing roomListing) {
-        roomListingService.updateRoomListing(id, roomListing);
+    @PutMapping("/update/listingid/{listingId}/renterid/{renterId}")
+    public ResponseEntity<?> updateRoomListing(@PathVariable Integer listingId, @PathVariable Integer renterId, @RequestBody @Valid RoomListingDTO roomListingDTO) {
+        roomListingService.updateRoomListing(listingId, renterId, roomListingDTO);
         return ResponseEntity.status(200).body(new ApiResponse("Room listing updated successfully"));
     }
 
-    @PutMapping("/toggle-availability/{id}")
-    public ResponseEntity<?> toggleListingAvailability(@PathVariable Integer id) {
-        Boolean available = roomListingService.toggleListingAvailability(id);
+    @PutMapping("/toggle-availability/listingid/{listingId}/renterid/{renterId}")
+    public ResponseEntity<?> toggleListingAvailability(@PathVariable Integer listingId, @PathVariable Integer renterId) {
+        Boolean available = roomListingService.toggleListingAvailability(listingId, renterId);
         String status = available ? "available" : "not available";
         return ResponseEntity.status(200).body(new ApiResponse("Listing is now " + status));
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteRoomListing(@PathVariable Integer id) {
-        roomListingService.deleteRoomListing(id);
+    @DeleteMapping("/delete/listingid/{listingId}/renterid/{renterId}")
+    public ResponseEntity<?> deleteRoomListing(@PathVariable Integer listingId, @PathVariable Integer renterId) {
+        roomListingService.deleteRoomListing(listingId, renterId);
         return ResponseEntity.status(200).body(new ApiResponse("Room listing deleted successfully"));
     }
 }

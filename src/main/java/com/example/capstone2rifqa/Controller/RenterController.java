@@ -1,6 +1,8 @@
 package com.example.capstone2rifqa.Controller;
 
 import com.example.capstone2rifqa.Api.ApiResponse;
+import com.example.capstone2rifqa.DTO.ChangePasswordDTO;
+import com.example.capstone2rifqa.DTO.RenterUpdateDTO;
 import com.example.capstone2rifqa.Entity.Renter;
 import com.example.capstone2rifqa.Service.RenterService;
 import jakarta.validation.Valid;
@@ -32,9 +34,15 @@ public class RenterController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateRenter(@PathVariable Integer id, @RequestBody @Valid Renter renter) {
-        renterService.updateRenter(id, renter);
+    public ResponseEntity<?> updateRenter(@PathVariable Integer id, @RequestBody @Valid RenterUpdateDTO renterUpdateDTO) {
+        renterService.updateRenter(id, renterUpdateDTO);
         return ResponseEntity.status(200).body(new ApiResponse("Renter updated successfully"));
+    }
+
+    @PutMapping("/change-password/{id}")
+    public ResponseEntity<?> changePassword(@PathVariable Integer id, @RequestBody @Valid ChangePasswordDTO changePasswordDTO) {
+        renterService.changePassword(id, changePasswordDTO);
+        return ResponseEntity.status(200).body(new ApiResponse("Password changed successfully"));
     }
 
     @DeleteMapping("/delete/{id}")

@@ -1,6 +1,8 @@
 package com.example.capstone2rifqa.Controller;
 
 import com.example.capstone2rifqa.Api.ApiResponse;
+import com.example.capstone2rifqa.DTO.ChangePasswordDTO;
+import com.example.capstone2rifqa.DTO.UserUpdateDTO;
 import com.example.capstone2rifqa.Entity.User;
 import com.example.capstone2rifqa.Service.UserService;
 import jakarta.validation.Valid;
@@ -42,9 +44,21 @@ public class UserController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Integer id, @RequestBody @Valid User user) {
-        userService.updateUser(id, user);
+    public ResponseEntity<?> updateUser(@PathVariable Integer id, @RequestBody @Valid UserUpdateDTO userUpdateDTO) {
+        userService.updateUser(id, userUpdateDTO);
         return ResponseEntity.status(200).body(new ApiResponse("User updated successfully"));
+    }
+
+    @PutMapping("/change-password/{id}")
+    public ResponseEntity<?> changePassword(@PathVariable Integer id, @RequestBody @Valid ChangePasswordDTO changePasswordDTO) {
+        userService.changePassword(id, changePasswordDTO);
+        return ResponseEntity.status(200).body(new ApiResponse("Password changed successfully"));
+    }
+
+    @PutMapping("/update-status/userid/{userId}/status/{status}")
+    public ResponseEntity<?> updateUserStatus(@PathVariable Integer userId, @PathVariable String status) {
+        userService.updateUserStatus(userId, status);
+        return ResponseEntity.status(200).body(new ApiResponse("User status updated successfully"));
     }
 
     @DeleteMapping("/delete/{id}")

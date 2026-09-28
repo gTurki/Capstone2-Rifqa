@@ -1,8 +1,12 @@
 package com.example.capstone2rifqa.Service;
 
 import com.example.capstone2rifqa.Api.ApiException;
+import com.example.capstone2rifqa.DTO.RoomListingDTO;
+import com.example.capstone2rifqa.Entity.Agreement;
 import com.example.capstone2rifqa.Entity.Renter;
 import com.example.capstone2rifqa.Entity.RoomListing;
+import com.example.capstone2rifqa.Repository.AgreementRepository;
+import com.example.capstone2rifqa.Repository.ListingRequestRepository;
 import com.example.capstone2rifqa.Repository.RenterRepository;
 import com.example.capstone2rifqa.Repository.RoomListingRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +20,8 @@ public class RoomListingService {
 
     private final RoomListingRepository roomListingRepository;
     private final RenterRepository renterRepository;
+    private final ListingRequestRepository listingRequestRepository;
+    private final AgreementRepository agreementRepository;
 
     public List<RoomListing> getAllRoomListings() {
         return roomListingRepository.findAll();
@@ -57,60 +63,71 @@ public class RoomListingService {
         return listings;
     }
 
-    public Boolean addRoomListing(RoomListing roomListing) {
-        Renter renter = renterRepository.findRenterById(roomListing.getRenterId());
+    public Boolean addRoomListing(Integer renterId, RoomListingDTO roomListingDTO) {
+        Renter renter = renterRepository.findRenterById(renterId);
         if (renter == null) {
-            throw new ApiException("Cannot create listing: Renter not found with ID: " + roomListing.getRenterId());
+            throw new ApiException("Renter not found with ID: " + renterId);
         }
 
-        roomListing.setAvailable(true);
-        roomListingRepository.save(roomListing);
-        return true;
-    }
-
-    public Boolean updateRoomListing(Integer id, RoomListing updatedListing) {
-        RoomListing listing = roomListingRepository.findRoomListingById(id);
-        if (listing == null) {
-            throw new ApiException("Room listing not found with ID: " + id);
-        }
-
-        Renter renter = renterRepository.findRenterById(updatedListing.getRenterId());
-        if (renter == null) {
-            throw new ApiException("Cannot update listing: Renter not found with ID: " + updatedListing.getRenterId());
-        }
-
-        listing.setRenterId(updatedListing.getRenterId());
-        listing.setTitle(updatedListing.getTitle());
-        listing.setCity(updatedListing.getCity());
-        listing.setDistrict(updatedListing.getDistrict());
-        listing.setRentAmount(updatedListing.getRentAmount());
-        listing.setDescription(updatedListing.getDescription());
-        if (updatedListing.getAvailable() != null) {
-            listing.setAvailable(updatedListing.getAvailable());
-        }
+        RoomListing listing = new RoomListing();
+        listing.setRenterId(renterId);
+        listing.setTitle(roomListingDTO.getTitle());
+        listing.setCity(roomListingDTO.getCity());
+        listing.setDistrict(roomListingDTO.getDistrict());
+        listing.setRentAmount(roomListingDTO.getRentAmount());
+        listing.setDescription(roomListingDTO.getDescription());
+        listing.setAvailable(true);
 
         roomListingRepository.save(listing);
         return true;
     }
 
-    public Boolean toggleListingAvailability(Integer id) {
-        RoomListing listing = roomListingRepository.findRoomListingById(id);
-        if (listing == null) {
-            throw new ApiException("Room listing not found with ID: " + id);
-        }
+    // The owner never changes on update, and availability is handled by toggleListingAvailability
+    public Boolean updateRoomListing(Integer listingId, Integer renterId, RoomListingDTO roomListingDTO) {
+        RoomListing listing = getListingForOwner(listingId, renterId);
+
+        listing.setTitle(roomListingDTO.getTitle());
+        listing.setCity(roomListingDTO.getCity());
+        listing.setDistrict(roomListingDTO.getDistrict());
+        listing.setRentAmount(roomListingDTO.getRentAmount());
+        listing.setDescription(roomListingDTO.getDescription());
+
+        roomListingRepository.save(listing);
+        return true;
+    }
+
+    public Boolean toggleListingAvailability(Integer listingId, Integer renterId) {
+        RoomListing listing = getListingForOwner(listingId, renterId);
 
         listing.setAvailable(!listing.getAvailable());
         roomListingRepository.save(listing);
         return listing.getAvailable();
     }
 
-    public Boolean deleteRoomListing(Integer id) {
-        RoomListing listing = roomListingRepository.findRoomListingById(id);
-        if (listing == null) {
-            throw new ApiException("Room listing not found with ID: " + id);
+    public Boolean deleteRoomListing(Integer listingId, Integer renterId) {
+        RoomListing listing = getListingForOwner(listingId, renterId);
+
+        // Agreements are a record of who lived there, so a listing that has them is hidden instead of deleted
+        List<Agreement> agreements = agreementRepository.findAgreementsByListingId(listingId);
+        if (!agreements.isEmpty()) {
+            throw new ApiException("This listing has agreements and cannot be deleted. Mark it as not available instead");
         }
 
+        // Requests only make sense while the listing exists
+        listingRequestRepository.deleteAll(listingRequestRepository.findListingRequestsByListingId(listingId));
         roomListingRepository.delete(listing);
         return true;
+    }
+
+    // Shared by update, toggle and delete: the listing exists and belongs to this renter
+    private RoomListing getListingForOwner(Integer listingId, Integer renterId) {
+        RoomListing listing = roomListingRepository.findRoomListingById(listingId);
+        if (listing == null) {
+            throw new ApiException("Room listing not found with ID: " + listingId);
+        }
+        if (!listing.getRenterId().equals(renterId)) {
+            throw new ApiException("Only the owner of this listing can make changes to it");
+        }
+        return listing;
     }
 }
