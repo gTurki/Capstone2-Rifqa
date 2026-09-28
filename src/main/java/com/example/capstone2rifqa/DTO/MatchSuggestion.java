@@ -9,6 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MatchSuggestion {
 
+    // ID of the saved SUGGESTED match, used by send-request
+    private Integer matchId;
+
     private Integer userId;
 
     private Integer suggestedUserId;

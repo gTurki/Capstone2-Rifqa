@@ -1,7 +1,7 @@
 package com.example.capstone2rifqa.Controller;
 
 import com.example.capstone2rifqa.Api.ApiResponse;
-import com.example.capstone2rifqa.Entity.Agreement;
+import com.example.capstone2rifqa.DTO.AgreementDTO;
 import com.example.capstone2rifqa.Service.AgreementService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,33 +35,33 @@ public class AgreementController {
         return ResponseEntity.status(200).body(agreementService.getAgreementsByListingId(listingId));
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<?> addAgreement(@RequestBody @Valid Agreement agreement) {
-        agreementService.addAgreement(agreement);
+    @PostMapping("/add/matchid/{matchId}/listingid/{listingId}/userid/{userId}")
+    public ResponseEntity<?> addAgreement(@PathVariable Integer matchId, @PathVariable Integer listingId, @PathVariable Integer userId, @RequestBody @Valid AgreementDTO agreementDTO) {
+        agreementService.addAgreement(matchId, listingId, userId, agreementDTO);
         return ResponseEntity.status(200).body(new ApiResponse("Agreement added successfully"));
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateAgreement(@PathVariable Integer id, @RequestBody @Valid Agreement agreement) {
-        agreementService.updateAgreement(id, agreement);
+    @PutMapping("/update/agreementid/{id}/userid/{userId}")
+    public ResponseEntity<?> updateAgreement(@PathVariable Integer id, @PathVariable Integer userId, @RequestBody @Valid AgreementDTO agreementDTO) {
+        agreementService.updateAgreement(id, userId, agreementDTO);
         return ResponseEntity.status(200).body(new ApiResponse("Agreement updated successfully"));
     }
 
-    @PutMapping("/activate/{id}")
-    public ResponseEntity<?> activateAgreement(@PathVariable Integer id) {
-        agreementService.activateAgreement(id);
+    @PutMapping("/activate/agreementid/{id}/userid/{userId}")
+    public ResponseEntity<?> activateAgreement(@PathVariable Integer id, @PathVariable Integer userId) {
+        agreementService.activateAgreement(id, userId);
         return ResponseEntity.status(200).body(new ApiResponse("Agreement activated successfully"));
     }
 
-    @PutMapping("/terminate/{id}")
-    public ResponseEntity<?> terminateAgreement(@PathVariable Integer id) {
-        agreementService.terminateAgreement(id);
+    @PutMapping("/terminate/agreementid/{id}/userid/{userId}")
+    public ResponseEntity<?> terminateAgreement(@PathVariable Integer id, @PathVariable Integer userId) {
+        agreementService.terminateAgreement(id, userId);
         return ResponseEntity.status(200).body(new ApiResponse("Agreement terminated successfully"));
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteAgreement(@PathVariable Integer id) {
-        agreementService.deleteAgreement(id);
+    @DeleteMapping("/delete/agreementid/{id}/userid/{userId}")
+    public ResponseEntity<?> deleteAgreement(@PathVariable Integer id, @PathVariable Integer userId) {
+        agreementService.deleteAgreement(id, userId);
         return ResponseEntity.status(200).body(new ApiResponse("Agreement deleted successfully"));
     }
 }

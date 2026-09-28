@@ -1,7 +1,7 @@
 package com.example.capstone2rifqa.Controller;
 
 import com.example.capstone2rifqa.Api.ApiResponse;
-import com.example.capstone2rifqa.Entity.Admin;
+import com.example.capstone2rifqa.DTO.AdminDTO;
 import com.example.capstone2rifqa.Service.AdminService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +25,10 @@ public class AdminController {
         return ResponseEntity.status(200).body(adminService.getAdminById(id));
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<?> addAdmin(@RequestBody @Valid Admin admin) {
-        adminService.addAdmin(admin);
+    // Only an existing admin can add a new one
+    @PostMapping("/add/adminid/{adminId}")
+    public ResponseEntity<?> addAdmin(@PathVariable Integer adminId, @RequestBody @Valid AdminDTO adminDTO) {
+        adminService.addAdmin(adminId, adminDTO);
         return ResponseEntity.status(200).body(new ApiResponse("Admin added successfully"));
     }
 

@@ -15,4 +15,6 @@ public interface ReportRepository extends JpaRepository<Report, Integer> {
     List<Report> findReportsByStatus(ReportStatus status);
 
     List<Report> findReportsByReportedUserId(Integer reportedUserId);
+
+    Report findReportByReporterIdAndReportedUserIdAndStatus(Integer reporterId, Integer reportedUserId, ReportStatus status);
 }

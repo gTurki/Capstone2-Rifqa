@@ -1,7 +1,7 @@
 package com.example.capstone2rifqa.Controller;
 
 import com.example.capstone2rifqa.Api.ApiResponse;
-import com.example.capstone2rifqa.Entity.ListingRequest;
+import com.example.capstone2rifqa.DTO.ListingRequestDTO;
 import com.example.capstone2rifqa.Service.ListingRequestService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -40,15 +40,15 @@ public class ListingRequestController {
         return ResponseEntity.status(200).body(listingRequestService.getRequestsByRequesterId(requesterId));
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<?> addListingRequest(@RequestBody @Valid ListingRequest listingRequest) {
-        listingRequestService.addListingRequest(listingRequest);
+    @PostMapping("/add/listingid/{listingId}/userid/{userId}")
+    public ResponseEntity<?> addListingRequest(@PathVariable Integer listingId, @PathVariable Integer userId, @RequestBody @Valid ListingRequestDTO listingRequestDTO) {
+        listingRequestService.addListingRequest(listingId, userId, listingRequestDTO);
         return ResponseEntity.status(200).body(new ApiResponse("Listing request sent successfully"));
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateListingRequest(@PathVariable Integer id, @RequestBody @Valid ListingRequest listingRequest) {
-        listingRequestService.updateListingRequest(id, listingRequest);
+    @PutMapping("/update/requestid/{id}/userid/{userId}")
+    public ResponseEntity<?> updateListingRequest(@PathVariable Integer id, @PathVariable Integer userId, @RequestBody @Valid ListingRequestDTO listingRequestDTO) {
+        listingRequestService.updateListingRequest(id, userId, listingRequestDTO);
         return ResponseEntity.status(200).body(new ApiResponse("Listing request updated successfully"));
     }
 
@@ -64,9 +64,9 @@ public class ListingRequestController {
         return ResponseEntity.status(200).body(new ApiResponse("Listing request rejected successfully"));
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteListingRequest(@PathVariable Integer id) {
-        listingRequestService.deleteListingRequest(id);
+    @DeleteMapping("/delete/requestid/{id}/userid/{userId}")
+    public ResponseEntity<?> deleteListingRequest(@PathVariable Integer id, @PathVariable Integer userId) {
+        listingRequestService.deleteListingRequest(id, userId);
         return ResponseEntity.status(200).body(new ApiResponse("Listing request deleted successfully"));
     }
 }

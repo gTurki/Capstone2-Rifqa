@@ -1,7 +1,7 @@
 package com.example.capstone2rifqa.Controller;
 
 import com.example.capstone2rifqa.Api.ApiResponse;
-import com.example.capstone2rifqa.Entity.Review;
+import com.example.capstone2rifqa.DTO.ReviewDTO;
 import com.example.capstone2rifqa.Service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,28 +36,27 @@ public class ReviewController {
         return ResponseEntity.status(200).body(reviewService.getReviewsByAgreementId(agreementId));
     }
 
+    // Returns just the number, e.g. 4.5
     @GetMapping("/get-average-rating/{userId}")
     public ResponseEntity<?> getAverageRating(@PathVariable Integer userId) {
-        Double average = reviewService.getAverageRating(userId);
-        String rating = String.format("%.1f", average);
-        return ResponseEntity.status(200).body(new ApiResponse("Average rating for user " + userId + " is " + rating + " out of 5"));
+        return ResponseEntity.status(200).body(reviewService.getAverageRating(userId));
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<?> addReview(@RequestBody @Valid Review review) {
-        reviewService.addReview(review);
+    @PostMapping("/add/agreementid/{agreementId}/reviewerid/{reviewerId}")
+    public ResponseEntity<?> addReview(@PathVariable Integer agreementId, @PathVariable Integer reviewerId, @RequestBody @Valid ReviewDTO reviewDTO) {
+        reviewService.addReview(agreementId, reviewerId, reviewDTO);
         return ResponseEntity.status(200).body(new ApiResponse("Review added successfully"));
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateReview(@PathVariable Integer id, @RequestBody @Valid Review review) {
-        reviewService.updateReview(id, review);
+    @PutMapping("/update/reviewid/{id}/reviewerid/{reviewerId}")
+    public ResponseEntity<?> updateReview(@PathVariable Integer id, @PathVariable Integer reviewerId, @RequestBody @Valid ReviewDTO reviewDTO) {
+        reviewService.updateReview(id, reviewerId, reviewDTO);
         return ResponseEntity.status(200).body(new ApiResponse("Review updated successfully"));
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteReview(@PathVariable Integer id) {
-        reviewService.deleteReview(id);
+    @DeleteMapping("/delete/reviewid/{id}/reviewerid/{reviewerId}")
+    public ResponseEntity<?> deleteReview(@PathVariable Integer id, @PathVariable Integer reviewerId) {
+        reviewService.deleteReview(id, reviewerId);
         return ResponseEntity.status(200).body(new ApiResponse("Review deleted successfully"));
     }
 }

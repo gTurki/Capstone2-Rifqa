@@ -1,6 +1,7 @@
 package com.example.capstone2rifqa.Service;
 
 import com.example.capstone2rifqa.Api.ApiException;
+import com.example.capstone2rifqa.DTO.AdminDTO;
 import com.example.capstone2rifqa.Entity.Admin;
 import com.example.capstone2rifqa.Entity.Renter;
 import com.example.capstone2rifqa.Entity.Report;
@@ -37,11 +38,20 @@ public class AdminService {
         return admin;
     }
 
-    public Boolean addAdmin(Admin admin) {
-        Admin existingAdmin = adminRepository.findAdminByEmail(admin.getEmail());
+    // Only an existing admin can add another one. The first admin is inserted directly in MySQL.
+    public Boolean addAdmin(Integer adminId, AdminDTO adminDTO) {
+        checkAdminExists(adminId);
+
+        Admin existingAdmin = adminRepository.findAdminByEmail(adminDTO.getEmail());
         if (existingAdmin != null) {
             throw new ApiException("Email is already in use");
         }
+
+        Admin admin = new Admin();
+        admin.setName(adminDTO.getName());
+        admin.setEmail(adminDTO.getEmail());
+        admin.setPassword(adminDTO.getPassword());
+
         adminRepository.save(admin);
         return true;
     }

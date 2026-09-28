@@ -1,9 +1,7 @@
 package com.example.capstone2rifqa.Controller;
 
 import com.example.capstone2rifqa.Api.ApiResponse;
-import com.example.capstone2rifqa.Entity.Match;
 import com.example.capstone2rifqa.Service.MatchService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,22 +28,39 @@ public class MatchController {
         return ResponseEntity.status(200).body(matchService.getMatchesByUserId(userId));
     }
 
-    // AI suggestion only, nothing is saved
-    @GetMapping("/suggest/{userId}")
+    // Pending requests this user has received
+    @GetMapping("/get-incoming/{userId}")
+    public ResponseEntity<?> getIncomingRequests(@PathVariable Integer userId) {
+        return ResponseEntity.status(200).body(matchService.getIncomingRequests(userId));
+    }
+
+    // AI picks a candidate and saves it as SUGGESTED
+    @PostMapping("/suggest/{userId}")
     public ResponseEntity<?> suggestMatch(@PathVariable Integer userId) {
         return ResponseEntity.status(200).body(matchService.suggestMatch(userId));
     }
 
-    // Saves the match after the user approves the suggestion
-    @PostMapping("/confirm")
-    public ResponseEntity<?> confirmMatch(@RequestBody @Valid Match match) {
-        matchService.confirmMatch(match);
-        return ResponseEntity.status(200).body(new ApiResponse("Match confirmed successfully"));
+    @PutMapping("/send-request/matchid/{matchId}/userid/{userId}")
+    public ResponseEntity<?> sendRequest(@PathVariable Integer matchId, @PathVariable Integer userId) {
+        matchService.sendRequest(matchId, userId);
+        return ResponseEntity.status(200).body(new ApiResponse("Match request sent successfully"));
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteMatch(@PathVariable Integer id) {
-        matchService.deleteMatch(id);
+    @PutMapping("/accept/matchid/{matchId}/userid/{userId}")
+    public ResponseEntity<?> acceptRequest(@PathVariable Integer matchId, @PathVariable Integer userId) {
+        matchService.acceptRequest(matchId, userId);
+        return ResponseEntity.status(200).body(new ApiResponse("Match request accepted successfully"));
+    }
+
+    @PutMapping("/decline/matchid/{matchId}/userid/{userId}")
+    public ResponseEntity<?> declineRequest(@PathVariable Integer matchId, @PathVariable Integer userId) {
+        matchService.declineRequest(matchId, userId);
+        return ResponseEntity.status(200).body(new ApiResponse("Match request declined successfully"));
+    }
+
+    @DeleteMapping("/delete/matchid/{matchId}/userid/{userId}")
+    public ResponseEntity<?> deleteMatch(@PathVariable Integer matchId, @PathVariable Integer userId) {
+        matchService.deleteMatch(matchId, userId);
         return ResponseEntity.status(200).body(new ApiResponse("Match deleted successfully"));
     }
 }

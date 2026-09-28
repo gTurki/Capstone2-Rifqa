@@ -1,6 +1,7 @@
 package com.example.capstone2rifqa.Service;
 
 import com.example.capstone2rifqa.Api.ApiException;
+import com.example.capstone2rifqa.DTO.ReportDTO;
 import com.example.capstone2rifqa.Entity.Report;
 import com.example.capstone2rifqa.Entity.ReportStatus;
 import com.example.capstone2rifqa.Entity.User;
@@ -58,46 +59,66 @@ public class ReportService {
         return reports;
     }
 
-    public Boolean addReport(Report report) {
-        if (report.getReporterId().equals(report.getReportedUserId())) {
+    // Both users come from the path; only the reason comes from the body
+    public Boolean addReport(Integer reporterId, Integer reportedUserId, ReportDTO reportDTO) {
+        if (reporterId.equals(reportedUserId)) {
             throw new ApiException("You cannot report yourself");
         }
 
-        User reporter = userRepository.findUserById(report.getReporterId());
+        User reporter = userRepository.findUserById(reporterId);
         if (reporter == null) {
-            throw new ApiException("Reporter not found with ID: " + report.getReporterId());
+            throw new ApiException("Reporter not found with ID: " + reporterId);
         }
-        User reportedUser = userRepository.findUserById(report.getReportedUserId());
+        User reportedUser = userRepository.findUserById(reportedUserId);
         if (reportedUser == null) {
-            throw new ApiException("Reported user not found with ID: " + report.getReportedUserId());
+            throw new ApiException("Reported user not found with ID: " + reportedUserId);
         }
 
+        // One open report per pair; the reporter can edit it instead of sending another
+        Report existing = reportRepository.findReportByReporterIdAndReportedUserIdAndStatus(reporterId, reportedUserId, ReportStatus.PENDING);
+        if (existing != null) {
+            throw new ApiException("You already have a pending report against this user");
+        }
+
+        Report report = new Report();
+        report.setReporterId(reporterId);
+        report.setReportedUserId(reportedUserId);
+        report.setReason(reportDTO.getReason());
         report.setStatus(ReportStatus.PENDING);
+
         reportRepository.save(report);
         return true;
     }
 
-    // Status changes are handled by AdminService; users can only edit the reason while it's pending
-    public Boolean updateReport(Integer id, Report updatedReport) {
-        Report report = reportRepository.findReportById(id);
-        if (report == null) {
-            throw new ApiException("Report not found with ID: " + id);
-        }
-        if (report.getStatus() != ReportStatus.PENDING) {
-            throw new ApiException("Only pending reports can be edited");
-        }
+    // Status changes are handled by AdminService; the reporter can only edit the reason while it's pending
+    public Boolean updateReport(Integer id, Integer reporterId, ReportDTO reportDTO) {
+        Report report = getPendingReportForReporter(id, reporterId);
 
-        report.setReason(updatedReport.getReason());
+        report.setReason(reportDTO.getReason());
         reportRepository.save(report);
         return true;
     }
 
-    public Boolean deleteReport(Integer id) {
-        Report report = reportRepository.findReportById(id);
-        if (report == null) {
-            throw new ApiException("Report not found with ID: " + id);
-        }
+    // Once an admin has handled a report it is part of the moderation record, so only pending ones can be withdrawn
+    public Boolean deleteReport(Integer id, Integer reporterId) {
+        Report report = getPendingReportForReporter(id, reporterId);
+
         reportRepository.delete(report);
         return true;
+    }
+
+    // Shared by update and delete: the report exists, this user submitted it, and no admin has handled it yet
+    private Report getPendingReportForReporter(Integer reportId, Integer reporterId) {
+        Report report = reportRepository.findReportById(reportId);
+        if (report == null) {
+            throw new ApiException("Report not found with ID: " + reportId);
+        }
+        if (!report.getReporterId().equals(reporterId)) {
+            throw new ApiException("Only the user who submitted this report can make changes to it");
+        }
+        if (report.getStatus() != ReportStatus.PENDING) {
+            throw new ApiException("This report has already been " + report.getStatus());
+        }
+        return report;
     }
 }

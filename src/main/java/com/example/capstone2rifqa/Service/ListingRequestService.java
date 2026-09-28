@@ -1,6 +1,7 @@
 package com.example.capstone2rifqa.Service;
 
 import com.example.capstone2rifqa.Api.ApiException;
+import com.example.capstone2rifqa.DTO.ListingRequestDTO;
 import com.example.capstone2rifqa.Entity.ListingRequest;
 import com.example.capstone2rifqa.Entity.Renter;
 import com.example.capstone2rifqa.Entity.RequestStatus;
@@ -67,41 +68,43 @@ public class ListingRequestService {
         return requests;
     }
 
-    public Boolean addListingRequest(ListingRequest request) {
-        RoomListing listing = roomListingRepository.findRoomListingById(request.getListingId());
+    // The listing and the requester come from the path; only the message comes from the body
+    public Boolean addListingRequest(Integer listingId, Integer userId, ListingRequestDTO listingRequestDTO) {
+        RoomListing listing = roomListingRepository.findRoomListingById(listingId);
         if (listing == null) {
-            throw new ApiException("Room listing not found with ID: " + request.getListingId());
+            throw new ApiException("Room listing not found with ID: " + listingId);
         }
         if (!listing.getAvailable()) {
             throw new ApiException("This listing is no longer available");
         }
 
-        User requester = userRepository.findUserById(request.getRequesterId());
+        User requester = userRepository.findUserById(userId);
         if (requester == null) {
-            throw new ApiException("User not found with ID: " + request.getRequesterId());
+            throw new ApiException("User not found with ID: " + userId);
         }
 
-        ListingRequest existing = listingRequestRepository
-                .findListingRequestByListingIdAndRequesterId(request.getListingId(), request.getRequesterId());
+        ListingRequest existing = listingRequestRepository.findListingRequestByListingIdAndRequesterId(listingId, userId);
         if (existing != null) {
             throw new ApiException("You have already sent a request for this listing");
         }
 
+        ListingRequest request = new ListingRequest();
+        request.setListingId(listingId);
+        request.setRequesterId(userId);
+        request.setMessage(listingRequestDTO.getMessage());
         request.setStatus(RequestStatus.PENDING);
+
         listingRequestRepository.save(request);
         return true;
     }
 
-    public Boolean updateListingRequest(Integer id, ListingRequest updatedRequest) {
-        ListingRequest request = listingRequestRepository.findListingRequestById(id);
-        if (request == null) {
-            throw new ApiException("Listing request not found with ID: " + id);
-        }
+    public Boolean updateListingRequest(Integer id, Integer userId, ListingRequestDTO listingRequestDTO) {
+        ListingRequest request = getRequestForRequester(id, userId);
         if (request.getStatus() != RequestStatus.PENDING) {
             throw new ApiException("Only pending requests can be edited");
         }
 
-        request.setMessage(updatedRequest.getMessage());
+        request.setMessage(listingRequestDTO.getMessage());
         listingRequestRepository.save(request);
         return true;
     }
@@ -141,13 +144,24 @@ public class ListingRequestService {
         return true;
     }
 
-    public Boolean deleteListingRequest(Integer id) {
-        ListingRequest request = listingRequestRepository.findListingRequestById(id);
-        if (request == null) {
-            throw new ApiException("Listing request not found with ID: " + id);
-        }
+    // Only the user who sent the request can cancel it
+    public Boolean deleteListingRequest(Integer id, Integer userId) {
+        ListingRequest request = getRequestForRequester(id, userId);
+
         listingRequestRepository.delete(request);
         return true;
+    }
+
+    // Shared by update and delete: the request exists and was sent by this user
+    private ListingRequest getRequestForRequester(Integer requestId, Integer userId) {
+        ListingRequest request = listingRequestRepository.findListingRequestById(requestId);
+        if (request == null) {
+            throw new ApiException("Listing request not found with ID: " + requestId);
+        }
+        if (!request.getRequesterId().equals(userId)) {
+            throw new ApiException("Only the user who sent this request can make changes to it");
+        }
+        return request;
     }
 
     // Shared checks for accept/reject: request exists, renter owns the listing, request is still pending

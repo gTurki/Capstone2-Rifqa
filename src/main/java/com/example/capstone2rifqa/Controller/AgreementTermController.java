@@ -1,7 +1,7 @@
 package com.example.capstone2rifqa.Controller;
 
 import com.example.capstone2rifqa.Api.ApiResponse;
-import com.example.capstone2rifqa.Entity.AgreementTerm;
+import com.example.capstone2rifqa.DTO.AgreementTermDTO;
 import com.example.capstone2rifqa.Service.AgreementTermService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,21 +30,21 @@ public class AgreementTermController {
         return ResponseEntity.status(200).body(agreementTermService.getTermsByAgreementId(agreementId));
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<?> addAgreementTerm(@RequestBody @Valid AgreementTerm agreementTerm) {
-        agreementTermService.addAgreementTerm(agreementTerm);
+    @PostMapping("/add/agreementid/{agreementId}/userid/{userId}")
+    public ResponseEntity<?> addAgreementTerm(@PathVariable Integer agreementId, @PathVariable Integer userId, @RequestBody @Valid AgreementTermDTO agreementTermDTO) {
+        agreementTermService.addAgreementTerm(agreementId, userId, agreementTermDTO);
         return ResponseEntity.status(200).body(new ApiResponse("Agreement term added successfully"));
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateAgreementTerm(@PathVariable Integer id, @RequestBody @Valid AgreementTerm agreementTerm) {
-        agreementTermService.updateAgreementTerm(id, agreementTerm);
+    @PutMapping("/update/termid/{id}/userid/{userId}")
+    public ResponseEntity<?> updateAgreementTerm(@PathVariable Integer id, @PathVariable Integer userId, @RequestBody @Valid AgreementTermDTO agreementTermDTO) {
+        agreementTermService.updateAgreementTerm(id, userId, agreementTermDTO);
         return ResponseEntity.status(200).body(new ApiResponse("Agreement term updated successfully"));
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteAgreementTerm(@PathVariable Integer id) {
-        agreementTermService.deleteAgreementTerm(id);
+    @DeleteMapping("/delete/termid/{id}/userid/{userId}")
+    public ResponseEntity<?> deleteAgreementTerm(@PathVariable Integer id, @PathVariable Integer userId) {
+        agreementTermService.deleteAgreementTerm(id, userId);
         return ResponseEntity.status(200).body(new ApiResponse("Agreement term deleted successfully"));
     }
 }
