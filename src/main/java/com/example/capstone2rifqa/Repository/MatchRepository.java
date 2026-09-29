@@ -17,7 +17,7 @@ public interface MatchRepository extends JpaRepository<Match, Integer> {
 
     List<Match> findMatchesByUserTwoIdAndStatus(Integer userTwoId, MatchStatus status);
 
-    // Everything the user started, plus requests and matches they received (not suggestions others got about them)
+    // Everything the user started, plus requests and matches they received
     @Query("select m from Match m where m.userOneId = ?1 or (m.userTwoId = ?1 and m.status <> ?2)")
     List<Match> findVisibleMatchesByUserId(Integer userId, MatchStatus hiddenStatus);
 
@@ -27,7 +27,7 @@ public interface MatchRepository extends JpaRepository<Match, Integer> {
     @Query("select m from Match m where (m.userOneId = ?1 or m.userTwoId = ?1) and m.status <> ?2")
     List<Match> findMatchesByUserIdAndStatusNot(Integer userId, MatchStatus status);
 
-    // A pair can be stored as (A, B) or (B, A), so check both orders
+    // we check both orders because user1 can be first or user2
     @Query("select m from Match m where ((m.userOneId = ?1 and m.userTwoId = ?2) or (m.userOneId = ?2 and m.userTwoId = ?1)) and m.status = ?3")
     Match findMatchBetweenUsersByStatus(Integer userOneId, Integer userTwoId, MatchStatus status);
 }

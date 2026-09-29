@@ -59,8 +59,7 @@ public class ReportService {
         return reports;
     }
 
-    // Both users come from the path; only the reason comes from the body
-    public Boolean addReport(Integer reporterId, Integer reportedUserId, ReportDTO reportDTO) {
+    public void addReport(Integer reporterId, Integer reportedUserId, ReportDTO reportDTO) {
         if (reporterId.equals(reportedUserId)) {
             throw new ApiException("You cannot report yourself");
         }
@@ -74,7 +73,6 @@ public class ReportService {
             throw new ApiException("Reported user not found with ID: " + reportedUserId);
         }
 
-        // One open report per pair; the reporter can edit it instead of sending another
         Report existing = reportRepository.findReportByReporterIdAndReportedUserIdAndStatus(reporterId, reportedUserId, ReportStatus.PENDING);
         if (existing != null) {
             throw new ApiException("You already have a pending report against this user");
@@ -87,27 +85,21 @@ public class ReportService {
         report.setStatus(ReportStatus.PENDING);
 
         reportRepository.save(report);
-        return true;
     }
 
-    // Status changes are handled by AdminService; the reporter can only edit the reason while it's pending
-    public Boolean updateReport(Integer id, Integer reporterId, ReportDTO reportDTO) {
+    public void updateReport(Integer id, Integer reporterId, ReportDTO reportDTO) {
         Report report = getPendingReportForReporter(id, reporterId);
 
         report.setReason(reportDTO.getReason());
         reportRepository.save(report);
-        return true;
     }
 
-    // Once an admin has handled a report it is part of the moderation record, so only pending ones can be withdrawn
-    public Boolean deleteReport(Integer id, Integer reporterId) {
+    public void deleteReport(Integer id, Integer reporterId) {
         Report report = getPendingReportForReporter(id, reporterId);
 
         reportRepository.delete(report);
-        return true;
     }
 
-    // Shared by update and delete: the report exists, this user submitted it, and no admin has handled it yet
     private Report getPendingReportForReporter(Integer reportId, Integer reporterId) {
         Report report = reportRepository.findReportById(reportId);
         if (report == null) {

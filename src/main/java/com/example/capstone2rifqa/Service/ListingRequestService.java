@@ -68,8 +68,7 @@ public class ListingRequestService {
         return requests;
     }
 
-    // The listing and the requester come from the path; only the message comes from the body
-    public Boolean addListingRequest(Integer listingId, Integer userId, ListingRequestDTO listingRequestDTO) {
+    public void addListingRequest(Integer listingId, Integer userId, ListingRequestDTO listingRequestDTO) {
         RoomListing listing = roomListingRepository.findRoomListingById(listingId);
         if (listing == null) {
             throw new ApiException("Room listing not found with ID: " + listingId);
@@ -95,10 +94,9 @@ public class ListingRequestService {
         request.setStatus(RequestStatus.PENDING);
 
         listingRequestRepository.save(request);
-        return true;
     }
 
-    public Boolean updateListingRequest(Integer id, Integer userId, ListingRequestDTO listingRequestDTO) {
+    public void updateListingRequest(Integer id, Integer userId, ListingRequestDTO listingRequestDTO) {
         ListingRequest request = getRequestForRequester(id, userId);
         if (request.getStatus() != RequestStatus.PENDING) {
             throw new ApiException("Only pending requests can be edited");
@@ -106,10 +104,9 @@ public class ListingRequestService {
 
         request.setMessage(listingRequestDTO.getMessage());
         listingRequestRepository.save(request);
-        return true;
     }
 
-    public Boolean acceptRequest(Integer requestId, Integer renterId) {
+    public void acceptRequest(Integer requestId, Integer renterId) {
         ListingRequest request = getPendingRequestForOwner(requestId, renterId);
 
         RoomListing listing = roomListingRepository.findRoomListingById(request.getListingId());
@@ -133,26 +130,22 @@ public class ListingRequestService {
                             + "The Rifqa Team"
             );
         }
-        return true;
     }
 
-    public Boolean rejectRequest(Integer requestId, Integer renterId) {
+    public void rejectRequest(Integer requestId, Integer renterId) {
         ListingRequest request = getPendingRequestForOwner(requestId, renterId);
 
         request.setStatus(RequestStatus.REJECTED);
         listingRequestRepository.save(request);
-        return true;
     }
 
-    // Only the user who sent the request can cancel it
-    public Boolean deleteListingRequest(Integer id, Integer userId) {
+    //  just the user who sent the request can cancel it
+    public void deleteListingRequest(Integer id, Integer userId) {
         ListingRequest request = getRequestForRequester(id, userId);
 
         listingRequestRepository.delete(request);
-        return true;
     }
 
-    // Shared by update and delete: the request exists and was sent by this user
     private ListingRequest getRequestForRequester(Integer requestId, Integer userId) {
         ListingRequest request = listingRequestRepository.findListingRequestById(requestId);
         if (request == null) {
@@ -164,7 +157,6 @@ public class ListingRequestService {
         return request;
     }
 
-    // Shared checks for accept/reject: request exists, renter owns the listing, request is still pending
     private ListingRequest getPendingRequestForOwner(Integer requestId, Integer renterId) {
         ListingRequest request = listingRequestRepository.findListingRequestById(requestId);
         if (request == null) {

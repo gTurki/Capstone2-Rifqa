@@ -18,7 +18,7 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
 
     Review findReviewByAgreementIdAndReviewerId(Integer agreementId, Integer reviewerId);
 
-    // Returns null when the user has no reviews
+    // return null when the user has no reviews
     @Query("select avg(r.rating) from Review r where r.reviewedUserId = ?1")
     Double findAverageRatingByUserId(Integer userId);
 }

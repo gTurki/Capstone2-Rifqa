@@ -55,7 +55,6 @@ public class ReviewService {
         return reviews;
     }
 
-    // Rounded to one decimal, e.g. 4.3. Returns 0.0 when the user has no reviews (real ratings are 1-5).
     public Double getAverageRating(Integer userId) {
         checkUserExists(userId);
 
@@ -66,8 +65,7 @@ public class ReviewService {
         return Math.round(average * 10) / 10.0;
     }
 
-    // The reviewed user is always the other roommate in the agreement, so the client never sends it
-    public Boolean addReview(Integer agreementId, Integer reviewerId, ReviewDTO reviewDTO) {
+    public void addReview(Integer agreementId, Integer reviewerId, ReviewDTO reviewDTO) {
         Agreement agreement = agreementRepository.findAgreementById(agreementId);
         if (agreement == null) {
             throw new ApiException("Agreement not found with ID: " + agreementId);
@@ -99,26 +97,22 @@ public class ReviewService {
         review.setComment(reviewDTO.getComment());
 
         reviewRepository.save(review);
-        return true;
     }
 
-    public Boolean updateReview(Integer id, Integer reviewerId, ReviewDTO reviewDTO) {
+    public void updateReview(Integer id, Integer reviewerId, ReviewDTO reviewDTO) {
         Review review = getReviewForAuthor(id, reviewerId);
 
         review.setRating(reviewDTO.getRating());
         review.setComment(reviewDTO.getComment());
         reviewRepository.save(review);
-        return true;
     }
 
-    public Boolean deleteReview(Integer id, Integer reviewerId) {
+    public void deleteReview(Integer id, Integer reviewerId) {
         Review review = getReviewForAuthor(id, reviewerId);
 
         reviewRepository.delete(review);
-        return true;
     }
 
-    // Shared by update and delete: the review exists and was written by this user
     private Review getReviewForAuthor(Integer reviewId, Integer reviewerId) {
         Review review = reviewRepository.findReviewById(reviewId);
         if (review == null) {

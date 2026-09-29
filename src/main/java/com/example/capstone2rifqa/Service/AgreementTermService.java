@@ -43,8 +43,7 @@ public class AgreementTermService {
         return terms;
     }
 
-    // The agreement comes from the path; only the text comes from the body
-    public Boolean addAgreementTerm(Integer agreementId, Integer userId, AgreementTermDTO agreementTermDTO) {
+    public void addAgreementTerm(Integer agreementId, Integer userId, AgreementTermDTO agreementTermDTO) {
         getDraftAgreementForParticipant(agreementId, userId);
 
         AgreementTerm term = new AgreementTerm();
@@ -52,25 +51,21 @@ public class AgreementTermService {
         term.setTermText(agreementTermDTO.getTermText());
 
         agreementTermRepository.save(term);
-        return true;
     }
 
-    public Boolean updateAgreementTerm(Integer id, Integer userId, AgreementTermDTO agreementTermDTO) {
+    public void updateAgreementTerm(Integer id, Integer userId, AgreementTermDTO agreementTermDTO) {
         AgreementTerm term = getTermForParticipant(id, userId);
 
         term.setTermText(agreementTermDTO.getTermText());
         agreementTermRepository.save(term);
-        return true;
     }
 
-    public Boolean deleteAgreementTerm(Integer id, Integer userId) {
+    public void deleteAgreementTerm(Integer id, Integer userId) {
         AgreementTerm term = getTermForParticipant(id, userId);
 
         agreementTermRepository.delete(term);
-        return true;
     }
 
-    // Shared by update and delete: the term exists and its agreement passes the checks below
     private AgreementTerm getTermForParticipant(Integer termId, Integer userId) {
         AgreementTerm term = agreementTermRepository.findAgreementTermById(termId);
         if (term == null) {
@@ -80,7 +75,6 @@ public class AgreementTermService {
         return term;
     }
 
-    // Only the two roommates can write house rules, and they are locked once the agreement becomes ACTIVE
     private Agreement getDraftAgreementForParticipant(Integer agreementId, Integer userId) {
         Agreement agreement = agreementRepository.findAgreementById(agreementId);
         if (agreement == null) {

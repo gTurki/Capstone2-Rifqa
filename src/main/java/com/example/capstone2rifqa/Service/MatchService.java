@@ -20,7 +20,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MatchService {
 
-    // Keeps the AI prompt a reasonable size
     private static final int MAX_CANDIDATES = 50;
 
     private final MatchRepository matchRepository;
@@ -41,8 +40,6 @@ public class MatchService {
         return match;
     }
 
-    // A user sees their own suggestions and every request or match they are part of,
-    // but not the suggestions other users received about them
     public List<Match> getMatchesByUserId(Integer userId) {
         getUser(userId);
         List<Match> matches = matchRepository.findVisibleMatchesByUserId(userId, MatchStatus.SUGGESTED);
@@ -68,7 +65,7 @@ public class MatchService {
             throw new ApiException("User must have status LOOKING to receive match suggestions");
         }
 
-        // Skip anyone who already has a pending request with this user, in either direction
+        // this skips anyone who already has a pending request with this user
         List<Integer> pendingWith = new ArrayList<>();
         for (Match pending : matchRepository.findMatchesByUserIdAndStatus(userId, MatchStatus.PENDING)) {
             if (pending.getUserOneId().equals(userId)) {
@@ -105,7 +102,6 @@ public class MatchService {
             throw new ApiException("AI returned an invalid suggestion, please try again");
         }
 
-        // Removed only after the AI succeeds, so a failed call doesn't lose the old suggestion
         matchRepository.deleteAll(matchRepository.findMatchesByUserOneIdAndStatus(userId, MatchStatus.SUGGESTED));
 
         Match match = new Match();
@@ -122,8 +118,8 @@ public class MatchService {
         return suggestion;
     }
 
-    // userOne sends the suggestion to userTwo as a request: SUGGESTED -> PENDING
-    public Boolean sendRequest(Integer matchId, Integer userId) {
+    // userOne sends the suggestion to userTwo as a request, so SUGGESTED status changes to PENDING
+    public void sendRequest(Integer matchId, Integer userId) {
         Match match = getMatchById(matchId);
         if (!match.getUserOneId().equals(userId)) {
             throw new ApiException("Only the user who received this suggestion can send the request");
@@ -151,11 +147,10 @@ public class MatchService {
         matchRepository.save(match);
 
         sendRequestEmail(receiver, sender, match.getCompatibilityScore());
-        return true;
     }
 
-    // userTwo accepts: PENDING -> CONFIRMED, both users become MATCHED
-    public Boolean acceptRequest(Integer matchId, Integer userId) {
+    // userTwo accepts, so PENDING changes to CONFIRMED, both users become MATCHED
+    public void acceptRequest(Integer matchId, Integer userId) {
         Match match = getPendingMatchForReceiver(matchId, userId);
 
         User sender = getUser(match.getUserOneId());
@@ -172,26 +167,21 @@ public class MatchService {
         userRepository.save(sender);
         userRepository.save(receiver);
 
-        // Other suggestions and requests of these two users are no longer needed
         removeOpenMatches(sender.getId());
         removeOpenMatches(receiver.getId());
 
         sendMatchEmail(sender, receiver, match.getCompatibilityScore());
         sendMatchEmail(receiver, sender, match.getCompatibilityScore());
-        return true;
     }
 
-    // userTwo declines: the request is removed
-    public Boolean declineRequest(Integer matchId, Integer userId) {
+    public void declineRequest(Integer matchId, Integer userId) {
         Match match = getPendingMatchForReceiver(matchId, userId);
 
         matchRepository.delete(match);
-        return true;
     }
 
-    // Either user can cancel an open request or unmatch a confirmed one.
-    // A suggestion is private to the user it was made for, so only userOne can remove it.
-    public Boolean deleteMatch(Integer matchId, Integer userId) {
+    // A suggestion is private to the user wjo made it, so only userOne can remove it.
+    public void deleteMatch(Integer matchId, Integer userId) {
         Match match = getMatchById(matchId);
 
         boolean isUserOne = match.getUserOneId().equals(userId);
@@ -200,7 +190,7 @@ public class MatchService {
             throw new ApiException("You are not part of this match");
         }
 
-        // Roommates living together under an agreement can't unmatch until it is ended
+        // Roommates living together under an agreement cannot unmatch until the agreement is ended
         if (match.getStatus() == MatchStatus.CONFIRMED
                 && !agreementRepository.findAgreementsBetweenUsersByStatusNot(match.getUserOneId(), match.getUserTwoId(), AgreementStatus.TERMINATED).isEmpty()) {
             throw new ApiException("Terminate or delete your agreement before removing this match");
@@ -208,15 +198,12 @@ public class MatchService {
 
         matchRepository.delete(match);
 
-        // Unmatching puts both users back into the LOOKING pool
         if (match.getStatus() == MatchStatus.CONFIRMED) {
             resetToLooking(match.getUserOneId());
             resetToLooking(match.getUserTwoId());
         }
-        return true;
     }
 
-    // Shared by accept and decline: the match exists, this user received it, and it is waiting for a response
     private Match getPendingMatchForReceiver(Integer matchId, Integer userId) {
         Match match = getMatchById(matchId);
         if (!match.getUserTwoId().equals(userId)) {
@@ -248,7 +235,7 @@ public class MatchService {
         }
     }
 
-    // The phone number is not shared until the request is accepted
+    //  phone number will not be shared until the request is accepted
     private void sendRequestEmail(User recipient, User sender, Double score) {
         emailService.sendEmail(
                 recipient.getEmail(),

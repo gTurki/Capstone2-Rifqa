@@ -54,7 +54,7 @@ public class UserService {
         return users;
     }
 
-    public Boolean addUser(User user) {
+    public void addUser(User user) {
         User existingUser = userRepository.findUserByEmail(user.getEmail());
         if (existingUser != null) {
             throw new ApiException("Email is already in use");
@@ -63,11 +63,10 @@ public class UserService {
         user.setIsVerified(false);
         user.setStatus(UserStatus.LOOKING);
         userRepository.save(user);
-        return true;
     }
 
     // Profile fields only. Password and status have their own endpoints.
-    public Boolean updateUser(Integer id, UserUpdateDTO userUpdateDTO) {
+    public void updateUser(Integer id, UserUpdateDTO userUpdateDTO) {
         User user = userRepository.findUserById(id);
         if (user == null) {
             throw new ApiException("User not found with ID: " + id);
@@ -94,10 +93,9 @@ public class UserService {
         user.setSleepSchedule(userUpdateDTO.getSleepSchedule());
 
         userRepository.save(user);
-        return true;
     }
 
-    public Boolean changePassword(Integer id, ChangePasswordDTO changePasswordDTO) {
+    public void changePassword(Integer id, ChangePasswordDTO changePasswordDTO) {
         User user = userRepository.findUserById(id);
         if (user == null) {
             throw new ApiException("User not found with ID: " + id);
@@ -111,11 +109,10 @@ public class UserService {
 
         user.setPassword(changePasswordDTO.getNewPassword());
         userRepository.save(user);
-        return true;
     }
 
-    // Users can only switch between LOOKING and NOT_LOOKING. MATCHED is set by the match flow.
-    public Boolean updateUserStatus(Integer userId, String status) {
+    // the users can only switch between LOOKING and NOT_LOOKING. MATCHED is set by the match flow.
+    public void updateUserStatus(Integer userId, String status) {
         UserStatus newStatus;
         try {
             newStatus = UserStatus.valueOf(status.toUpperCase());
@@ -139,15 +136,13 @@ public class UserService {
 
         user.setStatus(newStatus);
         userRepository.save(user);
-        return true;
     }
 
-    public Boolean deleteUser(Integer id) {
+    public void deleteUser(Integer id) {
         User user = userRepository.findUserById(id);
         if (user == null) {
             throw new ApiException("User not found with ID: " + id);
         }
         userRepository.delete(user);
-        return true;
     }
 }

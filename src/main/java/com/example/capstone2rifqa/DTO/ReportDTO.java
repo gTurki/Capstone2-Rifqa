@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-// Used by add and update. Both users come from the path, and status is changed only by an admin.
+// used by add and update report endpoints. both users come from the path, and status is changed only by an admin.
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

@@ -28,13 +28,13 @@ public class MatchController {
         return ResponseEntity.status(200).body(matchService.getMatchesByUserId(userId));
     }
 
-    // Pending requests this user has received
+    // show the pending requests this user has received
     @GetMapping("/get-incoming/{userId}")
     public ResponseEntity<?> getIncomingRequests(@PathVariable Integer userId) {
         return ResponseEntity.status(200).body(matchService.getIncomingRequests(userId));
     }
 
-    // AI picks a candidate and saves it as SUGGESTED
+    // the Ai suggests a person and save it as "suggested"
     @PostMapping("/suggest/{userId}")
     public ResponseEntity<?> suggestMatch(@PathVariable Integer userId) {
         return ResponseEntity.status(200).body(matchService.suggestMatch(userId));

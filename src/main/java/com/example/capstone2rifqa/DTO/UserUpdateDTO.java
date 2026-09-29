@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-// Profile fields only. Password has its own endpoint, and status is changed through update-status or the match flow.
+// here is the profile fields only. password has its own endpoint, and status is changed through update-status endpoint or the match flow.
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

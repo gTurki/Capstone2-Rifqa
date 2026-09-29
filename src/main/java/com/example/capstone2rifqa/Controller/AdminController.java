@@ -25,7 +25,7 @@ public class AdminController {
         return ResponseEntity.status(200).body(adminService.getAdminById(id));
     }
 
-    // Only an existing admin can add a new one
+    // Only an admin that exists can add a new admin
     @PostMapping("/add/adminid/{adminId}")
     public ResponseEntity<?> addAdmin(@PathVariable Integer adminId, @RequestBody @Valid AdminDTO adminDTO) {
         adminService.addAdmin(adminId, adminDTO);

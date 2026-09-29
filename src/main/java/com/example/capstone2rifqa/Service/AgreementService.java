@@ -69,9 +69,7 @@ public class AgreementService {
         return agreements;
     }
 
-    // The roommates come from the confirmed match and the rent is locked from the listing.
-    // Only the dates come from the body.
-    public Boolean addAgreement(Integer matchId, Integer listingId, Integer userId, AgreementDTO agreementDTO) {
+    public void addAgreement(Integer matchId, Integer listingId, Integer userId, AgreementDTO agreementDTO) {
         Match match = matchRepository.findMatchById(matchId);
         if (match == null) {
             throw new ApiException("Match not found with ID: " + matchId);
@@ -88,7 +86,6 @@ public class AgreementService {
             throw new ApiException("Room listing not found with ID: " + listingId);
         }
 
-        // The renter must have agreed to one of the two users joining this listing
         if (!hasAcceptedRequest(listingId, match.getUserOneId()) && !hasAcceptedRequest(listingId, match.getUserTwoId())) {
             throw new ApiException("One of you must have an accepted request for this listing");
         }
@@ -108,11 +105,9 @@ public class AgreementService {
         agreement.setStatus(AgreementStatus.DRAFT);
 
         agreementRepository.save(agreement);
-        return true;
     }
 
-    // Only the dates can change, and only while it's a draft
-    public Boolean updateAgreement(Integer id, Integer userId, AgreementDTO agreementDTO) {
+    public void updateAgreement(Integer id, Integer userId, AgreementDTO agreementDTO) {
         Agreement agreement = getAgreementForParticipant(id, userId);
         if (agreement.getStatus() != AgreementStatus.DRAFT) {
             throw new ApiException("Only draft agreements can be edited");
@@ -123,26 +118,23 @@ public class AgreementService {
         agreement.setStartDate(agreementDTO.getStartDate());
         agreement.setEndDate(agreementDTO.getEndDate());
         agreementRepository.save(agreement);
-        return true;
     }
 
-    public Boolean activateAgreement(Integer id, Integer userId) {
+    public void activateAgreement(Integer id, Integer userId) {
         Agreement agreement = getAgreementForParticipant(id, userId);
         if (agreement.getStatus() != AgreementStatus.DRAFT) {
             throw new ApiException("Only draft agreements can be activated");
         }
 
-        // House rules are locked once active, so they must be written first
         if (agreementTermRepository.findAgreementTermsByAgreementId(id).isEmpty()) {
             throw new ApiException("Add at least one house rule before activating the agreement");
         }
 
         agreement.setStatus(AgreementStatus.ACTIVE);
         agreementRepository.save(agreement);
-        return true;
     }
 
-    public Boolean terminateAgreement(Integer id, Integer userId) {
+    public void terminateAgreement(Integer id, Integer userId) {
         Agreement agreement = getAgreementForParticipant(id, userId);
         if (agreement.getStatus() != AgreementStatus.ACTIVE) {
             throw new ApiException("Only active agreements can be terminated");
@@ -150,22 +142,18 @@ public class AgreementService {
 
         agreement.setStatus(AgreementStatus.TERMINATED);
         agreementRepository.save(agreement);
-        return true;
     }
 
-    public Boolean deleteAgreement(Integer id, Integer userId) {
+    public void deleteAgreement(Integer id, Integer userId) {
         Agreement agreement = getAgreementForParticipant(id, userId);
         if (agreement.getStatus() != AgreementStatus.DRAFT) {
             throw new ApiException("Only draft agreements can be deleted");
         }
 
-        // Terms store the agreement's ID, so they must be removed first
         agreementTermRepository.deleteAll(agreementTermRepository.findAgreementTermsByAgreementId(id));
         agreementRepository.delete(agreement);
-        return true;
     }
 
-    // Shared by update, activate, terminate and delete: the agreement exists and this user is in it
     private Agreement getAgreementForParticipant(Integer agreementId, Integer userId) {
         Agreement agreement = agreementRepository.findAgreementById(agreementId);
         if (agreement == null) {
@@ -182,7 +170,6 @@ public class AgreementService {
         return request != null && request.getStatus() == RequestStatus.ACCEPTED;
     }
 
-    // A person can only be in one draft or active agreement at a time
     private void checkNoOpenAgreement(Integer userId) {
         if (!agreementRepository.findAgreementsByUserIdAndStatusNot(userId, AgreementStatus.TERMINATED).isEmpty()) {
             throw new ApiException("User with ID " + userId + " already has a draft or active agreement");

@@ -51,7 +51,6 @@ public class AiService {
             Double score = result.path("compatibilityScore").asDouble();
             String reasoning = result.path("reasoning").asText("");
 
-            // Keep values inside the DB limits (score 0-100, ai_reasoning VARCHAR(1000))
             score = Math.max(0.0, Math.min(100.0, score));
             if (reasoning.length() > 1000) {
                 reasoning = reasoning.substring(0, 1000);
@@ -99,7 +98,6 @@ public class AiService {
         return prompt.toString();
     }
 
-    // Only lifestyle fields are sent. Name, email, phone and password never leave the server.
     private String describe(User user) {
         return "id=" + user.getId()
                 + ", age=" + user.getAge()

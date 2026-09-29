@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-// Used by add and update. The users come from the match, the rent comes from the listing, and status is set by the server.
+// used by add and update agreement endpoints. The users come from the match, the rent comes from the listing, and status is set by the server.
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

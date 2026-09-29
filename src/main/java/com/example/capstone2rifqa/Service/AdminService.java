@@ -38,8 +38,7 @@ public class AdminService {
         return admin;
     }
 
-    // Only an existing admin can add another one. The first admin is inserted directly in MySQL.
-    public Boolean addAdmin(Integer adminId, AdminDTO adminDTO) {
+    public void addAdmin(Integer adminId, AdminDTO adminDTO) {
         checkAdminExists(adminId);
 
         Admin existingAdmin = adminRepository.findAdminByEmail(adminDTO.getEmail());
@@ -53,10 +52,9 @@ public class AdminService {
         admin.setPassword(adminDTO.getPassword());
 
         adminRepository.save(admin);
-        return true;
     }
 
-    public Boolean verifyUser(Integer adminId, Integer userId) {
+    public void verifyUser(Integer adminId, Integer userId) {
         checkAdminExists(adminId);
 
         User user = userRepository.findUserById(userId);
@@ -69,10 +67,9 @@ public class AdminService {
 
         user.setIsVerified(true);
         userRepository.save(user);
-        return true;
     }
 
-    public Boolean verifyRenter(Integer adminId, Integer renterId) {
+    public void verifyRenter(Integer adminId, Integer renterId) {
         checkAdminExists(adminId);
 
         Renter renter = renterRepository.findRenterById(renterId);
@@ -85,10 +82,9 @@ public class AdminService {
 
         renter.setIsVerified(true);
         renterRepository.save(renter);
-        return true;
     }
 
-    public Boolean updateReportStatus(Integer adminId, Integer reportId, String status) {
+    public void updateReportStatus(Integer adminId, Integer reportId, String status) {
         checkAdminExists(adminId);
 
         ReportStatus reportStatus;
@@ -111,7 +107,6 @@ public class AdminService {
 
         report.setStatus(reportStatus);
         reportRepository.save(report);
-        return true;
     }
 
     private void checkAdminExists(Integer adminId) {

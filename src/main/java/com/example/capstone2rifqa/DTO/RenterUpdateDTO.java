@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-// Profile fields only. Password has its own endpoint.
+// here is the profile fields only. password has its own endpoint.
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

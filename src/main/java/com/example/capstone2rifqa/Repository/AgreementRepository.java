@@ -18,11 +18,11 @@ public interface AgreementRepository extends JpaRepository<Agreement, Integer> {
     @Query("select a from Agreement a where a.userOneId = ?1 or a.userTwoId = ?1")
     List<Agreement> findAgreementsByUserId(Integer userId);
 
-    // Used with TERMINATED to find the user's draft or active agreements
+    // this is used with terminated endpoint to find the user's draft or active agreements
     @Query("select a from Agreement a where (a.userOneId = ?1 or a.userTwoId = ?1) and a.status <> ?2")
     List<Agreement> findAgreementsByUserIdAndStatusNot(Integer userId, AgreementStatus status);
 
-    // A pair can be stored as (A, B) or (B, A), so check both orders
+    // we check both orders because user1 can be first or user2
     @Query("select a from Agreement a where ((a.userOneId = ?1 and a.userTwoId = ?2) or (a.userOneId = ?2 and a.userTwoId = ?1)) and a.status <> ?3")
     List<Agreement> findAgreementsBetweenUsersByStatusNot(Integer userOneId, Integer userTwoId, AgreementStatus status);
 }

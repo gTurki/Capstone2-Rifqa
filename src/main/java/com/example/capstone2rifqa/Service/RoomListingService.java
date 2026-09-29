@@ -63,7 +63,7 @@ public class RoomListingService {
         return listings;
     }
 
-    public Boolean addRoomListing(Integer renterId, RoomListingDTO roomListingDTO) {
+    public void addRoomListing(Integer renterId, RoomListingDTO roomListingDTO) {
         Renter renter = renterRepository.findRenterById(renterId);
         if (renter == null) {
             throw new ApiException("Renter not found with ID: " + renterId);
@@ -79,11 +79,9 @@ public class RoomListingService {
         listing.setAvailable(true);
 
         roomListingRepository.save(listing);
-        return true;
     }
 
-    // The owner never changes on update, and availability is handled by toggleListingAvailability
-    public Boolean updateRoomListing(Integer listingId, Integer renterId, RoomListingDTO roomListingDTO) {
+    public void updateRoomListing(Integer listingId, Integer renterId, RoomListingDTO roomListingDTO) {
         RoomListing listing = getListingForOwner(listingId, renterId);
 
         listing.setTitle(roomListingDTO.getTitle());
@@ -93,7 +91,6 @@ public class RoomListingService {
         listing.setDescription(roomListingDTO.getDescription());
 
         roomListingRepository.save(listing);
-        return true;
     }
 
     public Boolean toggleListingAvailability(Integer listingId, Integer renterId) {
@@ -104,22 +101,18 @@ public class RoomListingService {
         return listing.getAvailable();
     }
 
-    public Boolean deleteRoomListing(Integer listingId, Integer renterId) {
+    public void deleteRoomListing(Integer listingId, Integer renterId) {
         RoomListing listing = getListingForOwner(listingId, renterId);
 
-        // Agreements are a record of who lived there, so a listing that has them is hidden instead of deleted
         List<Agreement> agreements = agreementRepository.findAgreementsByListingId(listingId);
         if (!agreements.isEmpty()) {
             throw new ApiException("This listing has agreements and cannot be deleted. Mark it as not available instead");
         }
 
-        // Requests only make sense while the listing exists
         listingRequestRepository.deleteAll(listingRequestRepository.findListingRequestsByListingId(listingId));
         roomListingRepository.delete(listing);
-        return true;
     }
 
-    // Shared by update, toggle and delete: the listing exists and belongs to this renter
     private RoomListing getListingForOwner(Integer listingId, Integer renterId) {
         RoomListing listing = roomListingRepository.findRoomListingById(listingId);
         if (listing == null) {

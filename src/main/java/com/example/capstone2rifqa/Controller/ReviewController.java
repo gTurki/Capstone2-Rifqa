@@ -25,7 +25,6 @@ public class ReviewController {
         return ResponseEntity.status(200).body(reviewService.getReviewById(id));
     }
 
-    // Reviews the user has received
     @GetMapping("/get-by-user/{userId}")
     public ResponseEntity<?> getReviewsForUser(@PathVariable Integer userId) {
         return ResponseEntity.status(200).body(reviewService.getReviewsForUser(userId));
@@ -36,7 +35,6 @@ public class ReviewController {
         return ResponseEntity.status(200).body(reviewService.getReviewsByAgreementId(agreementId));
     }
 
-    // Returns just the number, e.g. 4.5
     @GetMapping("/get-average-rating/{userId}")
     public ResponseEntity<?> getAverageRating(@PathVariable Integer userId) {
         return ResponseEntity.status(200).body(reviewService.getAverageRating(userId));

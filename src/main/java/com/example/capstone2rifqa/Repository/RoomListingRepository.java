@@ -16,7 +16,7 @@ public interface RoomListingRepository extends JpaRepository<RoomListing, Intege
 
     List<RoomListing> findRoomListingsByCityAndAvailable(String city, Boolean available);
 
-    // Cheapest listings first
+    // to show the cheapest listings first
     @Query("select r from RoomListing r where r.rentAmount <= ?1 and r.available = true order by r.rentAmount asc")
     List<RoomListing> findAvailableListingsByMaxRent(Double maxRent);
 }

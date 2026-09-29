@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-// Used by add and update. The agreement and reviewer come from the path, and the reviewed user is the other roommate.
+// used by add and update review endpoints. the agreement and reviewer come from the path, and the reviewed user is the other roommate.
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

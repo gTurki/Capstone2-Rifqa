@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-// Used by add and update. The listing and requester come from the path, and status is set by the server.
+// used by add and update listing request endpoints. The listing and requester come from the path, and status is set by the server.
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

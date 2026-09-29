@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-// Used by add. The ID and creation date are set by the server, so an existing admin can't be overwritten through the body.
+// used by addAdmin endpoint. The id and creation date are set automatically, so an existing admin cannot be overwritten in the body.
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

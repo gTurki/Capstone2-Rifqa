@@ -19,7 +19,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     List<User> findUsersByCity(String city);
 
-    // Match candidates: same city, same gender (case-insensitive), given status, excluding the user
+    // match candidates: same city, same gender, given status, excluding the user
     @Query("select u from User u where u.city = ?1 and lower(u.gender) = lower(?2) and u.status = ?3 and u.id <> ?4")
     List<User> findMatchCandidates(String city, String gender, UserStatus status, Integer excludedUserId);
 }

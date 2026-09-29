@@ -31,18 +31,17 @@ public class RenterService {
         return renter;
     }
 
-    public Boolean addRenter(Renter renter) {
+    public void addRenter(Renter renter) {
         Renter existingRenter = renterRepository.findRenterByEmail(renter.getEmail());
         if (existingRenter != null) {
             throw new ApiException("Email is already in use");
         }
         renter.setIsVerified(false);
         renterRepository.save(renter);
-        return true;
     }
 
     // Profile fields only. Password has its own endpoint.
-    public Boolean updateRenter(Integer id, RenterUpdateDTO renterUpdateDTO) {
+    public void updateRenter(Integer id, RenterUpdateDTO renterUpdateDTO) {
         Renter renter = renterRepository.findRenterById(id);
         if (renter == null) {
             throw new ApiException("Renter not found with ID: " + id);
@@ -59,10 +58,9 @@ public class RenterService {
         renter.setCity(renterUpdateDTO.getCity());
 
         renterRepository.save(renter);
-        return true;
     }
 
-    public Boolean changePassword(Integer id, ChangePasswordDTO changePasswordDTO) {
+    public void changePassword(Integer id, ChangePasswordDTO changePasswordDTO) {
         Renter renter = renterRepository.findRenterById(id);
         if (renter == null) {
             throw new ApiException("Renter not found with ID: " + id);
@@ -76,22 +74,19 @@ public class RenterService {
 
         renter.setPassword(changePasswordDTO.getNewPassword());
         renterRepository.save(renter);
-        return true;
     }
 
-    public Boolean deleteRenter(Integer id) {
+    public void deleteRenter(Integer id) {
         Renter renter = renterRepository.findRenterById(id);
         if (renter == null) {
             throw new ApiException("Renter not found with ID: " + id);
         }
 
-        // Listings store the renter's ID, so deleting the renter first would leave listings with no owner
         List<RoomListing> listings = roomListingRepository.findRoomListingsByRenterId(id);
         if (!listings.isEmpty()) {
             throw new ApiException("This renter still has listings. Delete them first");
         }
 
         renterRepository.delete(renter);
-        return true;
     }
 }

@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-// Used by add and update. The renter comes from the path, and availability is changed through toggle-availability.
+// used by add and update room listing endpoints. the renter comes from the path, and availability is changed through toggle availability endpoint.
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

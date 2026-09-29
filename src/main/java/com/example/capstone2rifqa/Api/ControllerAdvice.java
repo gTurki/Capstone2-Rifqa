@@ -9,28 +9,28 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @org.springframework.web.bind.annotation.ControllerAdvice
 public class ControllerAdvice {
 
-    // Errors thrown by the services
+    // for my custom errors
     @ExceptionHandler(value = ApiException.class)
-    public ResponseEntity<ApiResponse> onApiException(ApiException e) {
+    public ResponseEntity<ApiResponse> apiException(ApiException e) {
         String message = e.getMessage();
         return ResponseEntity.status(400).body(new ApiResponse(message));
     }
 
-    // @Valid failures, e.g. name too short or invalid email
+    // for @Valid Exceptions
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse> onValidationException(MethodArgumentNotValidException e) {
+    public ResponseEntity<ApiResponse> validationException(MethodArgumentNotValidException e) {
         String message = e.getFieldError().getDefaultMessage();
         return ResponseEntity.status(400).body(new ApiResponse(message));
     }
 
-    // Wrong type in the URL, e.g. /get/abc instead of /get/5
+    // for the wrong type in path variable
     @ExceptionHandler(value = MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ApiResponse> onTypeMismatch(MethodArgumentTypeMismatchException e) {
         String message = "Invalid value: " + e.getValue();
         return ResponseEntity.status(400).body(new ApiResponse(message));
     }
 
-    // Broken JSON or wrong enum in the body, e.g. "sleepSchedule": "early"
+    // for broken json or wrong enum
     @ExceptionHandler(value = HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse> onUnreadableBody(HttpMessageNotReadableException e) {
         String message = "Invalid request body, please check your fields and values";

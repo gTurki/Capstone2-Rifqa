@@ -23,7 +23,6 @@ public class EmailService {
         message.setSubject(subject);
         message.setText(body);
 
-        // A failed email should not cancel the action that triggered it (accepting a request, confirming a match)
         try {
             mailSender.send(message);
         } catch (MailException e) {
